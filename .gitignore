@@ -1,0 +1,91 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+*.manifest
+*.spec
+*.log
+*.sqlite3
+*.db
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# PyInstaller
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+test-results.xml
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pylint
+.pylint.d/
+
+# Pyre
+.pyre/
+
+# VS Code settings
+.vscode/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# === Terraform ===
+# Local .terraform directories
+**/.terraform/*
+
+# Terraform plan files
+*.tfplan
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive variable files (use with caution)
+*.auto.tfvars
+*.auto.tfvars.json
+*.tfvars
+
+# Terraform providers cache
+.terraform.lock.hcl
+
+# === System ===
+.DS_Store
+Thumbs.db
