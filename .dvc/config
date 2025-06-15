@@ -1,5 +1,4 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = s3://mlops-asl-poc-11062025/dvcstore
-   
+    remote = origin
+['remote "origin"']
+    url = s3://dvc-datastore-dev-04062025
