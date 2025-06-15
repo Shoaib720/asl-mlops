@@ -1,0 +1,4 @@
+dvc
+mlflow
+opencv-python
+tensorflow
