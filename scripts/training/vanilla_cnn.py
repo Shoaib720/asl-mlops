@@ -6,7 +6,7 @@ from mlflow import set_experiment, set_tracking_uri, start_run
 
 # === MLflow Setup ===
 set_tracking_uri(getenv("MLFLOW_TRACKING_URI"))
-set_experiment("asl-hand-gesture-classification")
+set_experiment("asl-classification")
 autolog()
 
 DATA_DIR = "data/processed/train"
