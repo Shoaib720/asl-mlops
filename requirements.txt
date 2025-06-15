@@ -1,4 +1,4 @@
-dvc
+dvc[s3]
 mlflow
 opencv-python
 tensorflow
