@@ -5,7 +5,7 @@ from mlflow.tensorflow import autolog
 from mlflow import set_experiment, set_tracking_uri, start_run
 
 # === MLflow Setup ===
-set_tracking_uri(getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
+set_tracking_uri(getenv("MLFLOW_TRACKING_URI"))
 set_experiment("asl-hand-gesture-classification")
 autolog()
 
