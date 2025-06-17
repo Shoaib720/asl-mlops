@@ -1,4 +1,4 @@
 [core]
     remote = origin
-['remote "origin"']
+[remote "origin"]
     url = s3://dvc-datastore-dev-04062025
