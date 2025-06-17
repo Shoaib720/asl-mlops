@@ -1,0 +1,20 @@
+schema: '2.0'
+stages:
+  transform:
+    cmd: python scripts/transformation/batch.py
+    deps:
+    - path: data/raw/train
+      hash: md5
+      md5: 847e337eb90d981f679bfddd43c48e28.dir
+      size: 1106140179
+      nfiles: 87000
+    - path: scripts/transformation/batch.py
+      hash: md5
+      md5: b6bba343f16ee1e57bb86eef9b6206f9
+      size: 913
+    outs:
+    - path: data/processed/train
+      hash: md5
+      md5: fb5f6d87c4af5dc3c3d0e23f020f512b.dir
+      size: 838187513
+      nfiles: 87000
