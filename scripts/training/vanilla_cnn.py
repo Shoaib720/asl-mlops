@@ -12,7 +12,7 @@ autolog()
 DATA_DIR = "data/processed/train"
 IMG_SIZE = 200
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = int(getenv("EPOCHS","1"))
 
 # Load dataset
 datagen = ImageDataGenerator(validation_split=0.2)
