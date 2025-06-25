@@ -54,11 +54,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform Plan
+      - name: Terraform plan
         run: | 
           cd terraform
           terraform init -input=false
-          terraform Plan
+          terraform plan
 
   # terraform_apply:
   #   runs-on: ubuntu-latest
