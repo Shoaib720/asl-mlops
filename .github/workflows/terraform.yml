@@ -1,7 +1,10 @@
 name: Terraform AWS Setup
 
 on:
-  workflow_dispatch:  # Triggered manually from the GitHub Actions UI
+  push:
+    branches:
+      - 'feature/bts-13-terraform' #Trigger workflow push on this branch
+  workflow_dispatch:  # Still allow manuall triggers for Github Actions UI
 
 jobs:
   terraform_validate:
