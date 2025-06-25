@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Terraform Apply
     needs: terraform_plan  # This job will only run after terraform_plan succeeds
-    if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
+    #if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
 
     steps:
       - name: Checkout code
