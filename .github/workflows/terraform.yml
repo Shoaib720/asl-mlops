@@ -28,7 +28,10 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Validate
-        run: cd terraform && terraform validate
+        run: |
+           cd terraform
+           terraform init -input=false
+           terraform validate
 
   terraform_plan:
     runs-on: ubuntu-latest
@@ -52,7 +55,10 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Plan
-        run: cd terraform && terraform plan
+        run: | 
+          cd terraform
+          terraform init -input=false
+          terraform Plan
 
   # terraform_apply:
   #   runs-on: ubuntu-latest
