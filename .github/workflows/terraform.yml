@@ -85,7 +85,7 @@ jobs:
       - name: Terraform Apply
         run: |
             cd terraform
-            terraform init -input=fales 
+            terraform init -input=false
             terraform apply -auto-approve
 
   # ssh_check:
