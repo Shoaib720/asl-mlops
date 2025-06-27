@@ -102,7 +102,8 @@ resource "aws_instance" "train_server" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("~/.ssh/mlops.pem")
+    private_key = file("/home/neosoft/.ssh/mlops.pem")
     host        = self.public_ip
+    timeout     = "5m"
   }
 }
