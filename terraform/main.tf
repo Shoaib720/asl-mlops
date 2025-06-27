@@ -76,11 +76,12 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
 }
 
 resource "aws_instance" "train_server" {
-  ami                    = "ami-0b5ab71f6a75e8bae"
-  instance_type          = "m5.xlarge"
-  key_name               = "mlops"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.sg_train.id]
+  ami                         = "ami-0b5ab71f6a75e8bae"
+  instance_type               = "m5.xlarge"
+  key_name                    = "mlops"
+  subnet_id                   = aws_subnet.public.id
+  vpc_security_group_ids      = [aws_security_group.sg_train.id]
+  associate_public_ip_address = true
 
   tags = {
     Name = "Train Server"
