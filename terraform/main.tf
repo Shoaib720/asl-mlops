@@ -119,7 +119,7 @@ resource "aws_instance" "train_server" {
   }
 
   provisioner "file" {
-    source      = "./scripts/run_training.sh"
+    source      = "../scripts/run_training.sh"
     destination = "/home/ubuntu/run_training.sh"
   }
 
