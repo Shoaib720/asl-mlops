@@ -92,7 +92,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   name: Check Server via SSH
   #   needs: terraform_apply  # This job will only run after terraform_apply succeeds
-  #   if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
+  #   #if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
 
   #   steps:
   #     - name: Checkout code
@@ -107,6 +107,6 @@ jobs:
   #     - name: SSH into EC2 instance to verify
   #       run: |
   #         echo "Attempting to SSH into the EC2 instance"
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/mlops.pem ec2-user@${{ steps.instance_output.outputs.public_ip }}
+  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/mlops.pem ubuntu@${{ steps.instance_output.outputs.public_ip }}
   #       env:
   #         PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}

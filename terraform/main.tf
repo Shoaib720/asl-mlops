@@ -1,4 +1,12 @@
-
+terraform {
+  backend "s3" {
+    bucket         = "terraform-test12-s3"
+    key            = "env/dev/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}
 
 terraform {
   required_providers {
@@ -16,11 +24,9 @@ provider "aws" {
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
 
-
   tags = {
-    Name = "test vpc" # this is for vpc
+    Name = "test vpc"
   }
-
 }
 
 resource "aws_subnet" "public" {
@@ -33,9 +39,8 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_security_group" "sg_train" {
-  name        = "sg_train"
-
-  vpc_id      = aws_vpc.my_vpc.id
+  name   = "sg_train"
+  vpc_id = aws_vpc.my_vpc.id
 
   tags = {
     Name = "sg_train"
@@ -55,7 +60,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   cidr_ipv4         = "0.0.0.0/0"
   from_port         = 443
   ip_protocol       = "tcp"
-  to_port           = 443       #Ingress Rules (Inbound Traffic)
+  to_port           = 443
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
@@ -67,16 +72,36 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
   security_group_id = aws_security_group.sg_train.id
   cidr_ipv6         = "::/0"
-  ip_protocol       = "-1"    # Egress Rules (Outbound Traffic)
+  ip_protocol       = "-1"
 }
 
-
-resource "aws_instance" "web" {
+resource "aws_instance" "train_server" {
   ami                    = "ami-0b5ab71f6a75e8bae"
   instance_type          = "m5.xlarge"
-  key_name               = "mlops"   # Yahan key pair ka naam
+  key_name               = "mlops"
+  subnet_id              = aws_subnet.public.id
+  vpc_security_group_ids = [aws_security_group.sg_train.id]
 
   tags = {
-    Name = "my Ec2"
+    Name = "Train Server"
+  }
+
+  provisioner "file" {
+    source      = "../scripts/run_training.sh"
+    destination = "/home/ubuntu/run_training.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /home/ubuntu/run_training.sh",
+      "sudo /home/ubuntu/run_training.sh"
+    ]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
+    host        = self.public_ip
   }
 }
