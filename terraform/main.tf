@@ -75,6 +75,37 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
   ip_protocol       = "-1"
 }
 
+# create a route table
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+
+  tags = {
+    Name = "public-rt"
+  }
+}
+
+# Create Internet Gateway
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+
+# Associate route table with public subnet
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
 resource "aws_instance" "train_server" {
   ami                         = "ami-0b5ab71f6a75e8bae"
   instance_type               = "m5.xlarge"
