@@ -1,0 +1,15 @@
+stages:
+  transform:
+    cmd: python scripts/transformation/batch.py
+    deps:
+    - data/raw
+    - scripts/transformation/batch.py
+    outs:
+    - data/processed
+  train_vanilla:
+    cmd: python scripts/training/vanilla_cnn.py
+    deps:
+    - data/processed
+    - scripts/training/vanilla_cnn.py
+    outs:
+    - model/asl_vanilla_cnn_model.keras
