@@ -1,150 +1,133 @@
-terraform {
-  backend "s3" {
-    bucket         = "terraform-test12-s3"
-    key            = "env/dev/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-locks"
+# Create AWS Key Pair using generated public key
+resource "aws_key_pair" "gpu_key" {
+  key_name   = "gpu-key"
+  # public_key = file("~/.ssh/mlops-kp.pub")
+  public_key = file("${path.module}/mlops-kp.pub")
+}
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH access"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # WARNING: Open to all
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "6.0.0"
+# Create Spot GPU EC2 instance
+resource "aws_instance" "gpu_spot" {
+  ami                         = "ami-05017f1c00f77723b"
+  instance_type               = "g4dn.xlarge"
+  key_name                    = aws_key_pair.gpu_key.key_name
+  security_groups        = [aws_security_group.allow_ssh.name]
+  iam_instance_profile   = aws_iam_instance_profile.dvc_instance_profile.name
+  instance_market_options {
+    market_type = "spot"
+    spot_options {
+      instance_interruption_behavior = "terminate"
+      max_price                      = "0.17" # adjust based on region
     }
   }
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
-
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = "test vpc"
-  }
-}
-
-resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.my_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
-
-  tags = {
-    Name = "public"
-  }
-}
-
-resource "aws_security_group" "sg_train" {
-  name   = "sg_train"
-  vpc_id = aws_vpc.my_vpc.id
-
-  tags = {
-    Name = "sg_train"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
-  security_group_id = aws_security_group.sg_train.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_https" {
-  security_group_id = aws_security_group.sg_train.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 443
-  ip_protocol       = "tcp"
-  to_port           = 443
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.sg_train.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  security_group_id = aws_security_group.sg_train.id
-  cidr_ipv6         = "::/0"
-  ip_protocol       = "-1"
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.my_vpc.id
-
-  tags = {
-    Name = "main-igw"
-  }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.my_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+    Name = "train-server-gpu-spot"
   }
 
-  tags = {
-    Name = "public-rt"
-  }
-}
-
-resource "aws_route_table_association" "public_assoc" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-resource "aws_instance" "train_server" {
-  ami                         = "ami-0b5ab71f6a75e8bae"
-  instance_type               = "m5.xlarge"
-  key_name                    = "mlops"
-  subnet_id                   = aws_subnet.public.id
-  vpc_security_group_ids      = [aws_security_group.sg_train.id]
-  associate_public_ip_address = true
-
-  tags = {
-    Name = "Train Server"
-  }
-
-  # Copy the training script
   provisioner "file" {
-    source      = "../scripts/run_training.sh"
-    destination = "/home/ubuntu/run_training.sh"
-  }
-
-  # Copy GitHub SSH private key
-  provisioner "file" {
-    source      = "/home/neosoft/.ssh/id_rsa"
+    source      = "${path.module}/train_server_github_rsa"
     destination = "/home/ubuntu/.ssh/id_rsa"
   }
 
-  # Run training with proper GitHub SSH config
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p /home/ubuntu/.ssh",
-      "chmod 700 /home/ubuntu/.ssh",
       "chmod 600 /home/ubuntu/.ssh/id_rsa",
-      "ssh-keyscan github.com >> /home/ubuntu/.ssh/known_hosts",
-      "echo 'Host github.com\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no' >> /home/ubuntu/.ssh/config",
-      "chmod 600 /home/ubuntu/.ssh/config",
-      "chmod +x /home/ubuntu/run_training.sh",
-      "sudo /home/ubuntu/run_training.sh"
+      "echo 'Host github.com\n\tStrictHostKeyChecking no\n' >> /home/ubuntu/.ssh/config",
+
+      "sudo apt update && sudo apt install -y git python3-pip",
+
+      "git clone --branch refactor/terraform+scripts git@github.com:Shoaib720/asl-mlops.git",
+      "cd asl-mlops",
+
+      "python3 -m venv .venv",
+      "source .venv/bin/activate",
+
+      "pip install -r requirements.txt",
+
+      "dvc pull",
+
+      # "export MLFLOW_TRACKING_URI=http://your-mlflow-server:5000"
+      "export MLFLOW_TRACKING_URI='${var.mlflow_tracking_uri}'",
+      "export EPOCHS='${var.epochs}'"
+
+      "dvc repro"
     ]
   }
 
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("/home/neosoft/.ssh/mlops.pem")
+    private_key = file("${path.module}/mlops-kp")  # your AWS EC2 key for SSH
     host        = self.public_ip
-    timeout     = "5m"
   }
 }
+
+# resource "aws_instance" "mseries_spot" {
+#   ami                         = "ami-05017f1c00f77723b"
+#   instance_type               = "m5.xlarge" 
+#   key_name                    = aws_key_pair.gpu_key.key_name
+#   iam_instance_profile   = aws_iam_instance_profile.dvc_instance_profile.name
+#   security_groups        = [aws_security_group.allow_ssh.name]
+#   instance_market_options {
+#     market_type = "spot"
+#     spot_options {
+#       instance_interruption_behavior = "terminate"
+#       max_price                      = "0.07" # adjust based on region
+#     }
+#   }
+#   provisioner "file" {
+#     source      = "${path.module}/train_server_github_rsa"
+#     destination = "/home/ubuntu/.ssh/id_rsa"
+#   }
+
+#   provisioner "remote-exec" {
+#     inline = [
+#       "chmod 600 /home/ubuntu/.ssh/id_rsa",
+#       "echo 'Host github.com\n\tStrictHostKeyChecking no\n' >> /home/ubuntu/.ssh/config",
+
+#       "sudo apt update && sudo apt install -y git python3-pip",
+
+#       "git clone git@github.com:Shoaib720/asl-mlops.git",
+#       "cd asl-mlops",
+
+#       "python3 -m venv .venv",
+#       "source .venv/bin/activate",
+
+#       "pip install -r requirements.txt",
+
+#       "dvc pull",
+
+#       # "export MLFLOW_TRACKING_URI=http://your-mlflow-server:5000"
+#       "export MLFLOW_TRACKING_URI='${var.mlflow_tracking_uri}'",
+#       "export EPOCHS='${var.epochs}'"
+
+#       "python scripts/train.py"
+#     ]
+#   }
+
+#   connection {
+#     type        = "ssh"
+#     user        = "ubuntu"
+#     private_key = file("${path.module}/mlops-kp")  # your AWS EC2 key for SSH
+#     host        = self.public_ip
+#   }
+# }

@@ -1,0 +1,59 @@
+name: Train Model
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - refactor/terraform+scripts
+
+jobs:
+  train:
+    name: Train
+    environment: TRAIN
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: 📁 Generate SSH Key Pair
+        run: |
+          ssh-keygen -t rsa -b 4096 -f terraform/mlops-kp -N ""
+          ls -al
+
+      - name: 📦 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: 📝 Write Private Key to File
+        run: |
+          echo "${{ secrets.TRAIN_SERVER_GITHUB_RSA }}" > terraform/train_server_github_rsa
+          chmod 600 terraform/train_server_github_rsa
+
+      - name: 🌱 Terraform Init
+        run: |
+          pushd ./terraform
+          terraform init
+          popd
+
+      - name: 🚀 Terraform Apply
+        run: |
+         pushd ./terraform
+         terraform apply -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }} -var="epochs=${{ vars.EPOCHS }}"
+         popd
+
+      - name: 🧨 Terraform Destroy
+        if: always()
+        run: |
+          pushd ./terraform
+          terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }} -var="epochs=${{ vars.EPOCHS }}"
+          popd
+
+      - name: Cleanup
+        run: |
+          rm -f terraform/train_server_github_rsa terraform/mlops-kp*
