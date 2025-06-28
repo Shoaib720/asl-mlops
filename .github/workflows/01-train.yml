@@ -44,14 +44,14 @@ jobs:
       - name: 🚀 Terraform Apply
         run: |
          pushd ./terraform
-         terraform apply -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }} -var="epochs=${{ vars.EPOCHS }}"
+         terraform apply -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
          popd
 
       - name: 🧨 Terraform Destroy
         if: always()
         run: |
           pushd ./terraform
-          terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }} -var="epochs=${{ vars.EPOCHS }}"
+          terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
           popd
 
       - name: Cleanup
