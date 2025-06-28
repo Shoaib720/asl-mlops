@@ -55,7 +55,7 @@ resource "aws_instance" "gpu_spot" {
 
       "sudo apt update && sudo apt install -y git python3-pip",
 
-      "git clone --branch refactor/terraform+scripts git@github.com:Shoaib720/asl-mlops.git",
+      "git clone --branch refactor/terraform-scripts git@github.com:Shoaib720/asl-mlops.git",
       "cd asl-mlops",
 
       "python3 -m venv .venv",
