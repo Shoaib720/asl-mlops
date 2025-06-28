@@ -6,6 +6,7 @@ on:
     branches:
       - "refactor/terraform-scripts"
 
+
 jobs:
   train:
     name: Train
