@@ -35,7 +35,7 @@ resource "aws_instance" "gpu_spot" {
     market_type = "spot"
     spot_options {
       instance_interruption_behavior = "terminate"
-      max_price                      = "0.17" # adjust based on region
+      max_price                      = "0.18" # adjust based on region
     }
   }
 
