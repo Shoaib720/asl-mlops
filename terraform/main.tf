@@ -67,7 +67,7 @@ resource "aws_instance" "gpu_spot" {
 
       # "export MLFLOW_TRACKING_URI=http://your-mlflow-server:5000"
       "export MLFLOW_TRACKING_URI='${var.mlflow_tracking_uri}'",
-      "export EPOCHS='${var.epochs}'"
+      "export EPOCHS='${var.epochs}'",
 
       "dvc repro"
     ]
