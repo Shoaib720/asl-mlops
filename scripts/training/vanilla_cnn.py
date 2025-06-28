@@ -2,7 +2,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import layers, models
 from os import getenv
 from mlflow.tensorflow import autolog
-from mlflow import set_experiment, set_tracking_uri, start_run
+from mlflow import set_experiment, set_tracking_uri, start_run, log_artifact
 
 # === MLflow Setup ===
 set_tracking_uri(getenv("MLFLOW_TRACKING_URI"))
@@ -59,3 +59,6 @@ with start_run():
 
     # Save model
     model.save("model/asl_vanilla_cnn_model.keras")
+    
+    # Log it manually since autolog won't do it anymore
+    log_artifact("model/asl_vanilla_cnn_model.keras", artifact_path="model")
