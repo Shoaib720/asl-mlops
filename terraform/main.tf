@@ -27,7 +27,7 @@ resource "aws_security_group" "allow_ssh" {
 # Create Spot GPU EC2 instance
 resource "aws_instance" "gpu_spot" {
   ami                         = "ami-05017f1c00f77723b"
-  instance_type               = "g4dn.xlarge"
+  instance_type               = "g4dn.2xlarge"
   key_name                    = aws_key_pair.gpu_key.key_name
   security_groups        = [aws_security_group.allow_ssh.name]
   iam_instance_profile   = aws_iam_instance_profile.dvc_instance_profile.name
@@ -35,7 +35,7 @@ resource "aws_instance" "gpu_spot" {
     market_type = "spot"
     spot_options {
       instance_interruption_behavior = "terminate"
-      max_price                      = "0.18" # adjust based on region
+      max_price                      = "0.26" # adjust based on region
     }
   }
 
