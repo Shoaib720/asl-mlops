@@ -34,8 +34,8 @@ jobs:
 
       - name: 📝 Write Private Key to File
         run: |
-          echo "${{ secrets.TRAIN_SERVER_GITHUB_RSA }}" > terraform/train_server_github_rsa
-          chmod 600 terraform/train_server_github_rsa
+          echo "${{ secrets.TRAIN_SERVER_GITHUB_RSA }}" > ~/.ssh/train_server_github_rsa
+          chmod 600 ~/.ssh/train_server_github_rsa
 
       - name: 🌱 Terraform Init
         run: |
@@ -51,7 +51,10 @@ jobs:
 
       - name: Output EC2 Public IP
         id: output-ip
-        run: echo "vm_ip=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
+        run: |
+          pushd ./terraform
+          echo "vm_ip=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
+          popd
 
       # - name: 🧨 Terraform Destroy
       #   if: always()
@@ -71,7 +74,7 @@ jobs:
 
       - name: Cleanup
         run: |
-          rm -f terraform/train_server_github_rsa ~/.ssh/id_rsa*
+          rm -f ~/.ssh/train_server_github_rsa ~/.ssh/id_rsa*
 
   train:
     name: Train
@@ -81,13 +84,6 @@ jobs:
     steps:
       - name: ✅ Checkout Code
         uses: actions/checkout@v4
-
-      # - name: 🔐 Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ap-south-1
 
       - name: Download SSH key
         uses: actions/download-artifact@v4
@@ -112,7 +108,9 @@ jobs:
             dvc pull
             export MLFLOW_TRACKING_URI='${{ vars.MLFLOW_TRACKING_URI }}'
             export EPOCHS='${{ vars.EPOCHS }}'
+            export ACCURACY_THRESHOLD='${{ vars.ACCURACY_THRESHOLD }}'
             dvc repro
+            dvc push
           EOF
 
       
