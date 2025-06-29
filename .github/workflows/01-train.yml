@@ -96,8 +96,9 @@ jobs:
 
       - name: Connect to VM and run training script
         run: |
+          ssh-keyscan ${{ needs.provision.outputs.vm_ip }} >> ~/.ssh/known_hosts
           ssh -o StrictHostKeyChecking=no ubuntu@${{ needs.provision.outputs.vm_ip }} << 'EOF'
-            chmod 600 /home/ubuntu/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             sudo apt update && sudo apt install -y git python3-pip
             git clone --branch refactor/terraform-scripts git@github.com:Shoaib720/asl-mlops.git
