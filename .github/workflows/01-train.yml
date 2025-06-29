@@ -96,7 +96,7 @@ jobs:
 
       - name: Connect to VM and run training script
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ needs.terraform.outputs.vm_ip }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ needs.provision.outputs.vm_ip }} << 'EOF'
             chmod 600 /home/ubuntu/.ssh/id_rsa
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             sudo apt update && sudo apt install -y git python3-pip
