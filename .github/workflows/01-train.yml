@@ -24,18 +24,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: 📁 Generate SSH Key Pair
+      - name: 📁 Configure SSH Key Pair
         run: |
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+          echo "${{ secrets.TRAIN_SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.TRAIN_SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
           ls -al ~/.ssh
 
       - name: 📦 Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: 📝 Write Private Key to File
+      - name: 📝 Write GitHub Keys to File
         run: |
           echo "${{ secrets.TRAIN_SERVER_GITHUB_RSA }}" > ~/.ssh/train_server_github_rsa
           chmod 600 ~/.ssh/train_server_github_rsa
+          ls -al ~/.ssh
 
       - name: 🌱 Terraform Init
         run: |
@@ -63,15 +66,6 @@ jobs:
       #     terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
       #     popd
 
-      - name: Upload SSH key-pair
-        uses: actions/upload-artifact@v4
-        with:
-          name: ssh_key_pair
-          path: |
-            ~/.ssh/id_rsa
-            ~/.ssh/id_rsa.pub
-          if-no-files-found: ignore
-
       - name: Cleanup
         run: |
           rm -f ~/.ssh/train_server_github_rsa ~/.ssh/id_rsa*
@@ -85,11 +79,12 @@ jobs:
       - name: ✅ Checkout Code
         uses: actions/checkout@v4
 
-      - name: Download SSH key
-        uses: actions/download-artifact@v4
-        with:
-          name: ssh_key_pair
-          path: ~/.ssh
+      - name: 📁 Configure SSH Key Pair
+        run: |
+          echo "${{ secrets.TRAIN_SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.TRAIN_SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          ls -al ~/.ssh
 
       - name: Set permissions
         run: chmod 600 ~/.ssh/id_rsa
