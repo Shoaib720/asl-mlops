@@ -91,31 +91,11 @@ jobs:
       - name: Set permissions
         run: chmod 600 ~/.ssh/id_rsa
 
-      - name: SSH and run training
+      - name: Copy deploy script to server
         run: |
-          ssh-keyscan ${{ needs.provision.outputs.vm_ip }} >> ~/.ssh/known_hosts
-          ssh -o StrictHostKeyChecking=no -tt ubuntu@${{ needs.provision.outputs.vm_ip }} << EOF
-set -ex
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no scripts/deploy.sh ubuntu@${{ needs.provision.outputs.vm_ip }}:/home/ubuntu/deploy.sh
 
-chmod 600 ~/.ssh/id_rsa
-ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-sudo apt update
-sudo apt install -y git python3-pip
-
-git clone --branch refactor/terraform-scripts git@github.com:Shoaib720/asl-mlops.git
-cd asl-mlops
-
-python3 -m venv .venv
-source .venv/bin/activate
-
-pip install -r requirements.txt
-dvc pull
-
-export MLFLOW_TRACKING_URI="${{ vars.MLFLOW_TRACKING_URI }}"
-export EPOCHS="${{ vars.EPOCHS }}"
-export ACCURACY_THRESHOLD="${{ vars.ACCURACY_THRESHOLD }}"
-
-dvc repro
-dvc push
-EOF
+      - name: SSH and run deploy
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ needs.provision.outputs.vm_ip }} \
+          "MLFLOW_TRACKING_URI='${{ vars.MLFLOW_TRACKING_URI }}' EPOCHS='${{ vars.EPOCHS }}' ACCURACY_THRESHOLD='${{ vars.ACCURACY_THRESHOLD }}' bash /home/ubuntu/deploy.sh"
