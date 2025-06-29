@@ -93,3 +93,4 @@ Thumbs.db
 mlruns/
 data/raw
 data/processed
+model/

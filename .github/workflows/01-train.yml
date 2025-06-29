@@ -7,10 +7,12 @@ on:
       - "refactor/terraform-scripts"
 
 jobs:
-  train:
-    name: Train
+  provision:
+    name: Provision
     environment: TRAIN
     runs-on: ubuntu-latest
+    outputs:
+      vm_ip: ${{ steps.output-ip.outputs.vm_ip }}
     steps:
       - name: ✅ Checkout Code
         uses: actions/checkout@v4
@@ -24,8 +26,8 @@ jobs:
 
       - name: 📁 Generate SSH Key Pair
         run: |
-          ssh-keygen -t rsa -b 4096 -f terraform/mlops-kp -N ""
-          ls -al
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+          ls -al ~/.ssh
 
       - name: 📦 Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -41,19 +43,76 @@ jobs:
           terraform init
           popd
 
-      # - name: 🚀 Terraform Apply
-      #   run: |
-      #    pushd ./terraform
-      #    terraform apply -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
-      #    popd
-
-      - name: 🧨 Terraform Destroy
-        if: always()
+      - name: 🚀 Terraform Apply
         run: |
-          pushd ./terraform
-          terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
-          popd
+         pushd ./terraform
+         terraform apply -auto-approve
+         popd
+
+      - name: Output EC2 Public IP
+        id: output-ip
+        run: echo "vm_ip=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
+
+      # - name: 🧨 Terraform Destroy
+      #   if: always()
+      #   run: |
+      #     pushd ./terraform
+      #     terraform destroy -auto-approve -var="mlflow_tracking_uri=${{ vars.MLFLOW_TRACKING_URI }}" -var="epochs=${{ vars.EPOCHS }}"
+      #     popd
+
+      - name: Upload SSH key-pair
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssh_key_pair
+          path: |
+            ~/.ssh/id_rsa
+            ~/.ssh/id_rsa.pub
+          if-no-files-found: ignore
 
       - name: Cleanup
         run: |
-          rm -f terraform/train_server_github_rsa terraform/mlops-kp*
+          rm -f terraform/train_server_github_rsa ~/.ssh/id_rsa*
+
+  train:
+    name: Train
+    environment: TRAIN
+    runs-on: ubuntu-latest
+    needs: provision
+    steps:
+      - name: ✅ Checkout Code
+        uses: actions/checkout@v4
+
+      # - name: 🔐 Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ap-south-1
+
+      - name: Download SSH key
+        uses: actions/download-artifact@v4
+        with:
+          name: ssh_key_pair
+          path: ~/.ssh
+
+      - name: Set permissions
+        run: chmod 600 ~/.ssh/id_rsa
+
+      - name: Connect to VM and run training script
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ needs.terraform.outputs.vm_ip }} << 'EOF'
+            chmod 600 /home/ubuntu/.ssh/id_rsa
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            sudo apt update && sudo apt install -y git python3-pip
+            git clone --branch refactor/terraform-scripts git@github.com:Shoaib720/asl-mlops.git
+            cd asl-mlops
+            python3 -m venv .venv
+            source .venv/bin/activate
+            pip install -r requirements.txt
+            dvc pull
+            export MLFLOW_TRACKING_URI='${{ vars.MLFLOW_TRACKING_URI }}'
+            export EPOCHS='${{ vars.EPOCHS }}'
+            dvc repro
+          EOF
+
+      

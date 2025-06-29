@@ -11,5 +11,3 @@ stages:
     deps:
     - data/processed
     - scripts/training/vanilla_cnn.py
-    outs:
-    - model/asl_vanilla_cnn_model.keras
