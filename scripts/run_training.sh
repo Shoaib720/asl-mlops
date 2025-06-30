@@ -29,7 +29,12 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pip install dvc[s3]
 
-# 6. DVC pull and pipeline run
+
+#6 Fix DVC remote to match IAM-permitted bucket
+dvc remote remove myremote || true
+dvc remote add -d myremote s3://mlops-asl-poc-11062025/dvcstore
+
+# 7. DVC pull and pipeline run
 dvc pull
 dvc repro
 
