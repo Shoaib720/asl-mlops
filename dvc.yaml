@@ -1,0 +1,5 @@
+stages:
+  transform:
+    cmd: ' '
+    deps:
+    - scripts/transformation/batch.py
