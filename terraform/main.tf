@@ -167,4 +167,5 @@ resource "aws_instance" "train_server" {
 #    host        = self.public_ip
 #    timeout     = "5m"
 #  }
-#} 
+
+} 
