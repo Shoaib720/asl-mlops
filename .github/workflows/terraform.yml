@@ -1,16 +1,14 @@
-name: Terraform AWS Setup
+name: EC2 DVC Training via Terraform & SSH
 
 on:
   push:
     branches:
-      - 'feature/bts-13-terraform' #Trigger workflow push on this branch
-  workflow_dispatch:  # Still allow manuall triggers for Github Actions UI
+      - 'feature/bts-13-terraform'
+  workflow_dispatch:
 
 jobs:
   terraform_validate:
     runs-on: ubuntu-latest
-    name: Terraform Validate
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,15 +27,13 @@ jobs:
 
       - name: Terraform Validate
         run: |
-           cd terraform
-           terraform init -input=false
-           terraform validate
+          cd terraform
+          terraform init -input=false
+          terraform validate
 
   terraform_plan:
     runs-on: ubuntu-latest
-    name: Terraform Plan
-    needs: terraform_validate  # This job will only run after terraform_validate succeeds
-
+    needs: terraform_validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,18 +50,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform plan
-        run: | 
+      - name: Terraform Plan
+        run: |
           cd terraform
           terraform init -input=false
           terraform plan
 
   terraform_apply:
     runs-on: ubuntu-latest
-    name: Terraform Apply
-    needs: terraform_plan  # This job will only run after terraform_plan succeeds
-    #if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
-
+    needs: terraform_plan
+    outputs:
+      ec2_ip: ${{ steps.get_ip.outputs.EC2_PUBLIC_IP }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -84,29 +79,42 @@ jobs:
 
       - name: Terraform Apply
         run: |
-            cd terraform
-            terraform init -input=false
-            terraform apply -auto-approve
+          cd terraform
+          terraform init -input=false
+          terraform apply -auto-approve
 
-  # ssh_check:
-  #   runs-on: ubuntu-latest
-  #   name: Check Server via SSH
-  #   needs: terraform_apply  # This job will only run after terraform_apply succeeds
-  #   #if: github.event_name == 'workflow_dispatch'  # Ensure it's manually triggered
+      - name: Get EC2 Public IP
+        id: get_ip
+        run: echo "EC2_PUBLIC_IP=$(cd terraform && terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+  remote_train:
+    runs-on: ubuntu-latest
+    needs: terraform_apply
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Set up SSH Key
-  #       run: |
-  #         mkdir -p ~/.ssh
-  #         echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/mlops.pem
-  #         chmod 600 ~/.ssh/mlops.pem  # Secure the private key
-
-  #     - name: SSH into EC2 instance to verify
-  #       run: |
-  #         echo "Attempting to SSH into the EC2 instance"
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/mlops.pem ubuntu@${{ steps.instance_output.outputs.public_ip }}
-  #       env:
-  #         PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+      - name: SSH into EC2 and Run Training Script
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo apt update -y
+            sudo apt install -y python3 python3-pip git
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git clone git@github.com:Shoaib720/asl-mlops.git
+            cd asl-mlops
+            git checkout feature/bts-13-terraform
+            pip3 install virtualenv
+            virtualenv .venv && source .venv/bin/activate
+            pip install -r requirements.txt
+            pip install dvc[s3]
+            dvc pull
+            dvc repro
+            dvc push

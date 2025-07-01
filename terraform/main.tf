@@ -146,19 +146,19 @@ resource "aws_instance" "train_server" {
     destination = "/home/ubuntu/.ssh/id_rsa"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /home/ubuntu/.ssh",
-      "chmod 700 /home/ubuntu/.ssh",
-      "chmod 600 /home/ubuntu/.ssh/id_rsa",
-      "ssh-keyscan github.com >> /home/ubuntu/.ssh/known_hosts",
-      "echo 'Host github.com\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no' >> /home/ubuntu/.ssh/config",
-      "chmod 600 /home/ubuntu/.ssh/config",
-      "chmod +x /home/ubuntu/run_training.sh",
-      "sudo chown -R ubuntu:ubuntu /home/ubuntu/asl-mlops",
-      "sudo /home/ubuntu/run_training.sh"
-    ]
-  }
+  #provisioner "remote-exec" {
+  # inline = [
+  #    "mkdir -p /home/ubuntu/.ssh",
+  #    "chmod 700 /home/ubuntu/.ssh",
+  #    "chmod 600 /home/ubuntu/.ssh/id_rsa",
+  #    "ssh-keyscan github.com >> /home/ubuntu/.ssh/known_hosts",
+  #    "echo 'Host github.com\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no' >> /home/ubuntu/.ssh/config",
+  #    "chmod 600 /home/ubuntu/.ssh/config",
+  #    "chmod +x /home/ubuntu/run_training.sh",
+  #    "sudo chown -R ubuntu:ubuntu /home/ubuntu/asl-mlops",
+  #    "sudo /home/ubuntu/run_training.sh"
+  #  ]
+  #}
 
   connection {
     type        = "ssh"
