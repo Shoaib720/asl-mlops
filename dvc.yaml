@@ -3,3 +3,10 @@ stages:
     cmd: ' '
     deps:
     - scripts/transformation/batch.py
+  train_cnn:
+    cmd: python scripts/training/vanilla_cnn.py
+    deps:
+    - data/processed/train
+    - scripts/training/vanilla_cnn.py
+    outs:
+    - model/asl_vanilla_cnn_model.keras
