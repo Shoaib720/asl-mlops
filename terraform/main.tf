@@ -136,15 +136,15 @@ resource "aws_instance" "train_server" {
     Name = "Train Server"
   }
 
-  provisioner "file" {
-    source      = "../scripts/run_training.sh"
-    destination = "/home/ubuntu/run_training.sh"
-  }
+ # provisioner "file" {
+ #   source      = "../scripts/run_training.sh"
+ #   destination = "/home/ubuntu/run_training.sh"
+ # }
 
-  provisioner "file" {
-    source      = "/home/neosoft/.ssh/id_rsa"
-    destination = "/home/ubuntu/.ssh/id_rsa"
-  }
+ # provisioner "file" {
+ #   source      = "/home/neosoft/.ssh/id_rsa"
+ #   destination = "/home/ubuntu/.ssh/id_rsa"
+ # }
 
   #provisioner "remote-exec" {
   # inline = [
@@ -160,11 +160,11 @@ resource "aws_instance" "train_server" {
   #  ]
   #}
 
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    #private_key = file("/home/neosoft/.ssh/mlops.pem")
-    host        = self.public_ip
-    timeout     = "5m"
-  }
-}
+#  connection {
+#    type        = "ssh"
+#    user        = "ubuntu"
+#    #private_key = file("/home/neosoft/.ssh/mlops.pem")
+#    host        = self.public_ip
+#    timeout     = "5m"
+#  }
+#}
