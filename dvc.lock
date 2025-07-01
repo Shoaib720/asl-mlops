@@ -1,0 +1,26 @@
+schema: '2.0'
+stages:
+  transform:
+    cmd: ' '
+    deps:
+    - path: scripts/transformation/batch.py
+      hash: md5
+      md5: b6bba343f16ee1e57bb86eef9b6206f9
+      size: 913
+  train_cnn:
+    cmd: python scripts/training/vanilla_cnn.py
+    deps:
+    - path: data/processed/train
+      hash: md5
+      md5: fb5f6d87c4af5dc3c3d0e23f020f512b.dir
+      size: 838187513
+      nfiles: 87000
+    - path: scripts/training/vanilla_cnn.py
+      hash: md5
+      md5: 6e6f053b2daf9b86a2bddc43b10532a9
+      size: 1700
+    outs:
+    - path: model/asl_vanilla_cnn_model.keras
+      hash: md5
+      md5: 675aa372de61c9e837223cdf555d4e6f
+      size: 105207732
