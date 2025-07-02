@@ -98,7 +98,7 @@ jobs:
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ needs.terraform_apply.outputs.ec2_ip }}
+          host: ${{ needs.terraform_apply.outputs.ec2_public_ip }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
