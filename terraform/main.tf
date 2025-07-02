@@ -171,7 +171,7 @@ resource "aws_instance" "train_server" {
 }
 
 output "ec2_public_ip" {
-  value = aws_instance.train_server.public_ip
+  value = "aws_instance.train_server.public_ip"
 }
 
 
