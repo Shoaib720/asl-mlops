@@ -97,7 +97,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Debug IP Address
-        run: echo "Connecting to EC2 at IP: ${{ needs.terraform_apply.outputs.ec2_ip }}"
+        run: |
+           echo "Connecting to EC2 at IP: ${{ needs.terraform_apply.outputs.ec2_ip }}"
 
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
