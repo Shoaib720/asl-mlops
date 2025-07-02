@@ -1,3 +1,4 @@
+
 terraform {
   backend "s3" {
     bucket         = "terraform-test12-s3"
@@ -96,7 +97,6 @@ resource "aws_route_table_association" "public_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# IAM role to allow EC2 to access S3 (for DVC)
 resource "aws_iam_role" "ec2_role" {
   name = "ec2_dvc_role"
   assume_role_policy = jsonencode({
@@ -135,44 +135,8 @@ resource "aws_instance" "train_server" {
   tags = {
     Name = "Train Server"
   }
-
- # provisioner "file" {
- #   source      = "../scripts/run_training.sh"
- #   destination = "/home/ubuntu/run_training.sh"
- # }
-
- # provisioner "file" {
- #   source      = "/home/neosoft/.ssh/id_rsa"
- #   destination = "/home/ubuntu/.ssh/id_rsa"
- # }
-
-  #provisioner "remote-exec" {
-  # inline = [
-  #    "mkdir -p /home/ubuntu/.ssh",
-  #    "chmod 700 /home/ubuntu/.ssh",
-  #    "chmod 600 /home/ubuntu/.ssh/id_rsa",
-  #    "ssh-keyscan github.com >> /home/ubuntu/.ssh/known_hosts",
-  #    "echo 'Host github.com\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no' >> /home/ubuntu/.ssh/config",
-  #    "chmod 600 /home/ubuntu/.ssh/config",
-  #    "chmod +x /home/ubuntu/run_training.sh",
-  #    "sudo chown -R ubuntu:ubuntu /home/ubuntu/asl-mlops",
-  #    "sudo /home/ubuntu/run_training.sh"
-  #  ]
-  #}
-
-#  connection {
-#    type        = "ssh"
-#    user        = "ubuntu"
-#    #private_key = file("/home/neosoft/.ssh/mlops.pem")
-#    host        = self.public_ip
-#    timeout     = "5m"
-#  }
-
 }
 
 output "ec2_public_ip" {
-  value = "aws_instance.train_server.public_ip"
+  value = aws_instance.train_server.public_ip
 }
-
-
-
