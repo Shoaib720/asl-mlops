@@ -105,7 +105,7 @@ jobs:
         with:
           host: ${{ needs.terraform_apply.outputs.ec2_ip }}
           username: ubuntu
-          key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "Connected to EC2!"
 
@@ -114,7 +114,7 @@ jobs:
 
             mkdir -p ~/.ssh
             chmod 700 ~/.ssh
-            echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
