@@ -106,7 +106,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
           script: |
-            echo "Connected to EC2!"
+            echo "✅ Connected to EC2"
 
             sudo apt update -y
             sudo apt install -y python3 python3-pip git
