@@ -59,8 +59,7 @@ jobs:
   terraform_apply:
     runs-on: ubuntu-latest
     needs: terraform_plan
-    outputs:
-      ec2_ip: ${{ steps.get_ip.outputs.ec2_ip }}
+   
 
     steps:
       - name: Checkout code
@@ -83,6 +82,9 @@ jobs:
           cd terraform
           terraform init -input=false
           terraform apply -auto-approve
+        
+        outputs:
+        ec2_ip: ${{ steps.get_ip.outputs.ec2_ip }}
 
       - name: Get EC2 Public IP
         id: get_ip
