@@ -43,11 +43,10 @@ jobs:
         id: get_ip
         run: |
           cd terraform
-          which terraform
-          terraform version
-          terraform_output=$(terraform output -raw ec2_public_ip)
-          echo "Public IP: $terraform_output"
-          echo "ec2_ip=$terraform_output" >> "$GITHUB_OUTPUT"
+          terraform init -input=false
+          ip=$(terraform output -raw ec2_public_ip)
+          echo "Public IP: $ip"
+          echo "ec2_ip=$ip" >> "$GITHUB_OUTPUT"
     
   # remote_train:
   #   runs-on: ubuntu-latest
