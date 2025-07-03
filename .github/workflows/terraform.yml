@@ -49,8 +49,9 @@ jobs:
         id: get_ip
         run: |
           cd terraform
-          IP=$(terraform output -raw ec2_public_ip | tr -d '\r\n')
-          echo "ec2_ip=$IP" >> $GITHUB_OUTPUT
+          printf "ec2_ip=%s\n" $(terraform output -raw ec2_public_ip) >> "$GITHUB_OUTPUT"
+        # IP=$(terraform output -raw ec2_public_ip | tr -d '\r\n')
+        # echo "ec2_ip=$IP" >> $GITHUB_OUTPUT
 
   remote_train:
     runs-on: ubuntu-latest
@@ -58,6 +59,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
