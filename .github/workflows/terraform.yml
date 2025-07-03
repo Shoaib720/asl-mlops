@@ -51,8 +51,8 @@ jobs:
         run: |
           cd terraform
           terraform init -input=false
-          ip=$(terraform output -raw ec2_public_ip)
-          echo "Extracted IP: $ip"
+          ip=$(terraform output ec2_public_ip)
+          echo "Extracted IP: ${ip}"
           echo "ec2_ip=${ip}" >> "$GITHUB_OUTPUT"
 
 
