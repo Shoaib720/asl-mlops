@@ -54,7 +54,7 @@ jobs:
 
   remote_train:
     runs-on: ubuntu-latest
-    needs: terraform_apply
+    needs: terraform_deployment
     steps:
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
