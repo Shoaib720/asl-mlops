@@ -65,7 +65,7 @@ jobs:
       - env:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
         run:
-          echo "host"
+          echo "$host"
       # - name: Checkout code
       #   uses: actions/checkout@v3
 
