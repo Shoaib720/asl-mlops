@@ -38,7 +38,14 @@ jobs:
       #     cd terraform
       #     terraform init -input=false
       #     terraform apply -auto-approve
-          
+
+      - name: Debug Terraform Output
+        run: |
+          cd terraform
+          terraform init -input=false
+          terraform output
+      
+       
       - name: Get EC2 Public IP
         id: get_ip
         run: |
