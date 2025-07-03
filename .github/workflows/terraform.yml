@@ -43,9 +43,9 @@ jobs:
         id: get_ip
         run: |
           cd terraform
-          IP=$(terraform output -raw ec2_public_ip | tr -d '\n' | tr -d '\r')"
+          IP=$(terraform output -raw ec2_public_ip | tr -d '\n' | tr -d '\r')
           echo "Public IP: $IP"
-          echo "ec2_ip=$IP >> "$GITHUB_OUTPUT"
+          echo "ec2_ip=$IP" >> "$GITHUB_OUTPUT"
 
   remote_train:
     runs-on: ubuntu-latest
