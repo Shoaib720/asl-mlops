@@ -54,6 +54,9 @@ jobs:
           IP=$(terraform output -raw ec2_public_ip | tr -d '\r\n')
           echo "Public IP: $IP"
           echo "ec2_ip=$IP" >> "$GITHUB_OUTPUT"
+          
+      - name: Debug EC2 IP
+        run: echo "Captured IP- ${{ steps.get_ip.outputs.ec2_ip }}"
 
 
  
@@ -65,8 +68,7 @@ jobs:
     steps:
       - env:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
-        run:
-          echo "$host"
+        run: echo "$host"
       # - name: Checkout code
       #   uses: actions/checkout@v3
 
