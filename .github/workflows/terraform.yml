@@ -51,7 +51,7 @@ jobs:
         run: |
           cd terraform
           terraform init -input=false
-          echo "ec2_ip=$(terraform output -raw ec2_public_ip)" >> "$GITHUB_OUTPUT"
+          echo "ec2_ip=$(terraform output -raw ec2_public_ip | tr -d '\r')" >> "$GITHUB_OUTPUT"
           
       - name: Debug EC2 IP
         run: echo "Captured IP- ${{ steps.get_ip.outputs.ec2_ip }}"
