@@ -83,12 +83,12 @@ jobs:
           terraform init -input=false
           terraform apply -auto-approve
 
-      - name: Get EC2 Public IP
-        id: get_ip
-        run: |
-          cd terraform
-          echo $(terraform output -raw ec2_public_ip | tr -d '\r\n')
-          echo "ec2_ip=$(terraform output -raw ec2_public_ip | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
+      # - name: Get EC2 Public IP
+      #   id: get_ip
+      #   run: |
+      #     cd terraform
+      #     echo $(terraform output -raw ec2_public_ip | tr -d '\r\n')
+      #     echo "ec2_ip=$(terraform output -raw ec2_public_ip | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
       - name: Get EC2 Public IP
         id: get_ip
         run: |
