@@ -43,7 +43,9 @@ jobs:
         id: get_ip
         run: |
           cd terraform
-          echo "ec2_ip=$(terraform output -raw ec2_public_ip)" >> "$GITHUB_OUTPUT"
+          IP=$(terraform output -raw ec2_public_ip)"
+          echo "Public IP: $IP"
+          echo "ec2_ip=$IP >> "$GITHUB_OUTPUT"
 
   remote_train:
     runs-on: ubuntu-latest
@@ -58,6 +60,8 @@ jobs:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
           username: ubuntu
           key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          run: |
+            echo "Public IP: ${{ needs.terraform_deployment.outputs.ec2_ip }}"
           script: |
             echo "✅ Connected to EC2"
             sudo apt update -y && sudo apt upgrade -y
