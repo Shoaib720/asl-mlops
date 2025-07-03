@@ -18,7 +18,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: '1.3.0'
+          terraform_version: '1.12.2'
 
       - name: Set up AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -45,7 +45,7 @@ jobs:
           cd terraform
           which terraform
           terraform version
-          terraform_output=$(terraform output -raw ec2_public_ip 2>/dev/null)
+          terraform_output=$(terraform output -raw ec2_public_ip)
           echo "Public IP: $terraform_output"
           echo "ec2_ip=$terraform_output" >> "$GITHUB_OUTPUT"
     
