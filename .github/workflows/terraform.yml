@@ -39,15 +39,15 @@ jobs:
           cd terraform
           terraform init -input=false
           terraform apply -auto-approve
-
+          
       - name: Get EC2 Public IP
         id: get_ip
         run: |
           cd terraform
-          RAW_OUTPUT=$(terraform output -raw ec2_public_ip | tr -d '\r')
-          CLEAN_IP="${RAW_OUTPUT%%::*}"  # Remove anything after ::
+          CLEAN_IP=$(terraform output -raw ec2_public_ip | tr -d '\r')
           echo "Cleaned IP: $CLEAN_IP"
           echo "ec2_ip=$CLEAN_IP" >> $GITHUB_OUTPUT
+
 
   remote_train:
     runs-on: ubuntu-latest
