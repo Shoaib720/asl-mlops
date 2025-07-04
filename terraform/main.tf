@@ -140,3 +140,8 @@ resource "aws_instance" "train_server" {
 output "ec2_public_ip" {
   value = aws_instance.train_server.public_ip
 }
+
+resource "local_file" "ec2_ip_file" {
+  content  = aws_instance.train_server.public_ip
+  filename = "${path.module}/ec2_public_ip.txt"
+}
