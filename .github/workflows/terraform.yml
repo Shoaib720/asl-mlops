@@ -47,7 +47,7 @@ jobs:
           terraform init -input=false
           terraform_output=$(terraform output -raw ec2_public_ip)
           echo "Raw Terraform Output: $terraform_output"
-          CLEAN_IP=$(echo "$terraform_output" | sed -E 's/[^0-9\.]//g')
+          CLEAN_IP=$(echo "$terraform_output" | tr -d '\r' | sed 's/[^0-9.]//g' | awk 'BEGIN{FS="."} {if(NF==4) print $1"."$2"."$3"."$4}')
           echo "Cleaned IP: $CLEAN_IP"
           if [[ ! "$CLEAN_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: Invalid IP address format!"
