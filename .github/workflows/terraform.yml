@@ -6,35 +6,7 @@ on:
       - 'feature/bts-13-terraform'
   workflow_dispatch:
 
-env:
-  MLOPS_PEM_KEY: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEowIBAAKCAQEAtQuSR4IBSHHTC/mK+XNGfIxKwxUb9O86re/u9ddawhs1Shyb
-    fmW1b7X3T9bH7rVtxdo4lBasto1GhiuBIPt/nsdjtMl3DzQvqOowipKRJpAztylD
-    yxZn6daUBpmQZBrjjN78+VoGDzi3ABUMNdAIFEmiGR/DvnFESFh0QnvxdZ/oxJ2F
-    Yvo5GxcyWGLLbQvtDLWPhfgUmIIo3gAZ2xgm7rdVbYa2lvtWOZJWYmTDiAGglanA
-    l7i5fx/L4AFAy4yCpRIeChBHiG90JLUuQmycRNFZcRAY53zyZewzIMkI06uUzJ2W
-    XPHqSl7nzfkfx/vpdYEfAYrAjJyrahDk1IrbBQIDAQABAoIBAH1F+H4KcyDRwhsz
-    HPrmzQs5eDHs1V9yecQJlev+jApsET+q891OO3GFFA/mqol+eOrCyQuPdQsMTpRg
-    XgWYgQI5LcDW9s9KaQAUrGn2aQGqHl7K6uIIKvcfR2YZtFPQV0wOsDVKGY9Gyzn/
-    VmeV/0EqgkOoOyX38iutKSUn5jhgt+rLt5jRbbXvTdXbV2JRWk83mIm3bnruW6VU
-    z4gRN59e9GBC3kptt/Jli4DE+ARtt9yq2jHQ1i2Tw7YRmycuHzZQFBCFfo9bPzMC
-    NZSl6IzTFMt//DBPRx+dMnaRFpthetFTPQcl3ldfxXdhfj8e5Ffzh1xXVOWggrWM
-    xPLofDECgYEA3zQ3lTZdMSd/kTdeOwd+FWsPsB7SglamECnW1V8oT9N4aJ1Uj5db
-    NaxOp/sIDM7J3LfQVEHOSgkwYE13WgtuMnLnbTVZKeKLY+NueXy12fWBFCqJz/Dn
-    bxhpWEbWfN8Lrl+TWyt3akUKkVE7qY+urfQzOKR7Q3YLrIYW6kJKL4MCgYEAz6WO
-    /9eofObZ1oa8/4IR0wWOy9zt1ykyV1KKkFnhb3TmbouN3JZJEHNyKigiBYAfmhQS
-    yQEEVfQEJGjYytA750KKvJHSYE1XQcjpcY4q7l9TVRzbu6ZsvCUuB3j8yrSP4Lg+
-    1N2YukABXuosUzGFXyTy8qAtrB5qpr7bO2co/NcCgYAunIL3ABFaEHuNYdilzxy/
-    cEooZ2dinKG1QmeAy4xpjynX/vMHwX3kqYULg1rdAdoZ47D3x35C68RUeBjyjuyG
-    UISPw9JI8uxVAcuyRx7a03APPArnh9Fs29Yz/ycPkKypz3/ATEV1xdE9I4+oCz9Z
-    SGPh8kdjgSVS8/WZGhrP7QKBgB7CO4iSfZbi62nn059VuSY1MI3qUCELLTXaOERh
-    zA8ile/SJFWEvZX+Q+8Sutdtv0CnsJCt4eKJnwN1tId2iSkcpkiAoVU6n65TAKGd
-    maZt4H4/JB2L7ZeBOmxI88ljLdzv7f7CRJlyWcGhlqdMMqGBa6udJqbUaqAAraED
-    CwNJAoGBAK3rod8vP4PIfIN2uI9FnZg7xPCWot+3mzx91rmziAc2rKU9jRNshZvR
-    ccYrUtuy7ZlqOSHcZmqliUXQvyVtaYJdzYpdSnjLtwifRtPLdptFG+aacUSvwZiI
-    fm5a/QF4qGZngwBBIw9O9Kwuoag78UsXcWf1T8ldZ4rezUKSzx2o
-    -----END RSA PRIVATE KEY-----
+
 jobs:
   terraform_deployment:
     runs-on: ubuntu-latest
@@ -79,14 +51,14 @@ jobs:
   remote_train:
     runs-on: ubuntu-latest
     needs: terraform_deployment
+    timeout-minutes: 15
     steps:
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 15
         with:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
           username: ubuntu
-          key: ${{ env.MLOPS_PEM_KEY }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             echo "Connected to EC2"
             sudo apt update -y && sudo apt upgrade -y
@@ -106,7 +78,7 @@ jobs:
             ssh -T git@github.com || echo "⚠️ GitHub SSH not authenticated"
 
             # ✅ Clone private repo using GitHub SSH key
-            git clone git@github.com:Shoaib720/asl-mlops.git
+            [ ! -d "asl-mlops" ] && git clone git@github.com:Shoaib720/asl-mlops.git
             cd asl-mlops
             git checkout feature/bts-13-terraform
   
