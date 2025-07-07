@@ -101,8 +101,5 @@ jobs:
             dvc repro -v 
 
             echo "✅ Step 5: DVC PUSH"
-            dvc push -v 
-
-   
-
- 
+            dvc push -v
+            
