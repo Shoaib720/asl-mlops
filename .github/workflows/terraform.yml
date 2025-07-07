@@ -81,15 +81,6 @@ jobs:
             [ ! -d "asl-mlops" ] && git clone git@github.com:Shoaib720/asl-mlops.git
             cd asl-mlops
             git checkout feature/bts-13-terraform
-  
-            pip3 install virtualenv
-            virtualenv .venv
-            source .venv/bin/activate
-  
-            pip install -r requirements.txt
-            pip install dvc[s3]
-  
-            dvc pull
             dvc repro
             dvc push
    
