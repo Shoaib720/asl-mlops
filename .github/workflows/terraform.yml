@@ -95,13 +95,13 @@ jobs:
             dvc config --list
 
             echo "✅ Step 3: DVC PULL"
-            dvc pull -v --no-pager
+            dvc pull -v 
 
             echo "✅ Step 4: DVC REPRO"
-            dvc repro -v --no-pager
+            dvc repro -v 
 
             echo "✅ Step 5: DVC PUSH"
-            dvc push -v --no-pager
+            dvc push -v 
 
    
 
