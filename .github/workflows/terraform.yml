@@ -6,7 +6,6 @@ on:
       - 'feature/bts-13-terraform'
   workflow_dispatch:
 
-
 jobs:
   terraform_deployment:
     runs-on: ubuntu-latest
@@ -58,27 +57,13 @@ jobs:
         with:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
           script: |
             echo "Connected to EC2"
             sudo apt update -y && sudo apt upgrade -y
             sudo apt install -y python3 python3-pip git
-
-            # ✅ Setup GitHub SSH access
-            mkdir -p ~/.ssh
-            chmod 700 ~/.ssh
-
-            # Write GitHub SSH key (for cloning repo)
-            echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-            # Optional: verify SSH works
-            ssh -T git@github.com || echo "⚠️ GitHub SSH not authenticated"
-
-            # ✅ Clone private repo using GitHub SSH key
-            [ ! -d "asl-mlops" ] && git clone git@github.com:Shoaib720/asl-mlops.git
+  
+            git clone git@github.com:Shoaib720/asl-mlops.git
             cd asl-mlops
             git checkout feature/bts-13-terraform
   
@@ -93,6 +78,10 @@ jobs:
             echo "✅ Step 2: DVC remote check"
             dvc remote list
             dvc config --list
+
+            export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
+            echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
+
 
             echo "✅ Step 3: DVC PULL"
             dvc pull -v 
