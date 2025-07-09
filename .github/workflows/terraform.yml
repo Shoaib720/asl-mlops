@@ -101,10 +101,10 @@ jobs:
             echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
             echo "✅ Step 3: DVC PULL"
-            dvc pull -v 
+            dvc pull -r myremote -v 
 
             echo "✅ Step 4: DVC REPRO"
             dvc repro -v 
 
             echo "✅ Step 5: DVC PUSH"
-            dvc push -v
+            dvc push -r myremote -v   
