@@ -102,6 +102,9 @@ jobs:
 
             echo "✅ Step 3: DVC PULL"
             dvc pull -r myremote -v 
+            
+            echo "Check File is Present"
+            ls
 
             echo "✅ Step 4: DVC REPRO"
             dvc repro -v 
