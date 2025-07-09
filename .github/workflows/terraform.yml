@@ -50,7 +50,7 @@ jobs:
   remote_train:
     runs-on: ubuntu-latest
     needs: terraform_deployment
-    timeout-minutes: 15
+    
     steps:
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
@@ -94,7 +94,10 @@ jobs:
             dvc config --list
 
             # ✅ Set MLflow Tracking URI from GitHub variable
-            export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
+            # export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
+            # echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
+
+            export MLFLOW_TRACKING_URI=http://50.16.168.4:5000
             echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
             echo "✅ Step 3: DVC PULL"
