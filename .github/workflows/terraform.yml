@@ -97,7 +97,7 @@ jobs:
             # export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
             # echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
-            export MLFLOW_TRACKING_URI=http://50.16.168.4:5000
+            export MLFLOW_TRACKING_URI=http://54.152.190.181:5000
             echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
             echo "✅ Step 3: DVC PULL"
