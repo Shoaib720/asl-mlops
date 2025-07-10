@@ -107,8 +107,8 @@ jobs:
             ls
 
             echo "✅ Step 4: DVC REPRO"
-            # dvc repro -f train_cnn -v
-            dvc repro -v
+            dvc repro -f train_cnn -v
+            # dvc repro -v
             
 
             echo "✅ Step 5: DVC PUSH"
