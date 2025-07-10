@@ -50,7 +50,7 @@ jobs:
   remote_train:
     runs-on: ubuntu-latest
     needs: terraform_deployment
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - name: SSH into EC2 and Run Training Script
         uses: appleboy/ssh-action@v1.0.0
@@ -58,6 +58,8 @@ jobs:
           host: ${{ needs.terraform_deployment.outputs.ec2_ip }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          command_timeout: 120m   # <-- This is the key! Set to 2 hours or as needed
+
           script: |
             echo "Connected to EC2"
             sudo apt update -y && sudo apt upgrade -y
@@ -97,7 +99,7 @@ jobs:
             # export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
             # echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
-            export MLFLOW_TRACKING_URI=http://54.165.103.123:5000
+            export MLFLOW_TRACKING_URI=http://54.87.222.78:5000
             echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
             echo "✅ Step 3: DVC PULL"
