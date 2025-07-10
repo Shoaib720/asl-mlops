@@ -97,7 +97,7 @@ jobs:
             # export MLFLOW_TRACKING_URI=${{ vars.MLFLOW_TRACKING_URL }}
             # echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
-            export MLFLOW_TRACKING_URI=http://54.152.190.181:5000
+            export MLFLOW_TRACKING_URI=http://54.165.103.123:5000
             echo "MLFLOW_TRACKING_URI set to $MLFLOW_TRACKING_URI"
 
             echo "✅ Step 3: DVC PULL"
@@ -107,7 +107,8 @@ jobs:
             ls
 
             echo "✅ Step 4: DVC REPRO"
-            dvc repro -v 
+            dvc repro -f train_cnn -v
+            
 
             echo "✅ Step 5: DVC PUSH"
             dvc push -r myremote -v   
